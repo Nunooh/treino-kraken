@@ -1047,7 +1047,8 @@
         ghosts: [],
         playerDrawIndex: 4,
         inkSplats: [],
-        inkSpawnTimer: 0.9
+        inkSpawnTimer: 2.0,
+        lastInkNormPos: null
       };
 
       // =========================================================
@@ -1428,22 +1429,20 @@
       function createInkSplat() {
         let normPos = 0.16 + Math.random() * 0.68;
 
-        // Evita sobrepor exatamente a última mancha ativa, cobrindo zonas diferentes do medidor
-        if (state.inkSplats.length > 0) {
-          const prev = state.inkSplats[state.inkSplats.length - 1];
-          if (Math.abs(normPos - prev.normPos) < 0.24) {
-            normPos = prev.normPos > 0.5
-              ? 0.16 + Math.random() * 0.26
-              : 0.58 + Math.random() * 0.26;
-          }
+        // Evita repetir exatamente a mesma posição da mancha anterior
+        if (state.lastInkNormPos !== null && Math.abs(normPos - state.lastInkNormPos) < 0.24) {
+          normPos = state.lastInkNormPos > 0.5
+            ? 0.16 + Math.random() * 0.26
+            : 0.58 + Math.random() * 0.26;
         }
+        state.lastInkNormPos = normPos;
 
         return {
           normPos: normPos,
           radialRatio: 0.36 + Math.random() * 0.36,
           sizeFactor: 1.08 + Math.random() * 0.24,
           age: 0,
-          holdDuration: 3.2 + Math.random() * 1.8,
+          holdDuration: 3.2 + Math.random() * 1.4,
           fadeDuration: 1.15,
           sprite: createInkSplatSprite()
         };
@@ -1452,21 +1451,33 @@
       function updateInkSplats(dt) {
         if (config.tutorialHighlight || state.won) return;
 
-        state.inkSpawnTimer -= dt;
-        if (state.inkSpawnTimer <= 0) {
-          if (state.inkSplats.length < 2) {
-            state.inkSplats.push(createInkSplat());
-          }
-          // Mantém pressão constante com 1 a 2 manchas alternadas pelo mostrador
-          state.inkSpawnTimer = 2.0 + Math.random() * 1.9;
-        }
-
+        // Atualiza a mancha ativa (garante no máximo 1 ativa de cada vez)
         for (let i = state.inkSplats.length - 1; i >= 0; i--) {
           const s = state.inkSplats[i];
           s.age += dt;
           if (s.age >= s.holdDuration + s.fadeDuration) {
             state.inkSplats.splice(i, 1);
+            // Só começa a contar o intervalo após a mancha atual desaparecer
+            state.inkSpawnTimer = 3.8 + Math.random() * 2.6;
           }
+        }
+
+        // Apenas cria uma nova mancha quando não houver nenhuma ativa
+        if (state.inkSplats.length === 0) {
+          state.inkSpawnTimer -= dt;
+          if (state.inkSpawnTimer <= 0) {
+            state.inkSplats.push(createInkSplat());
+          }
+        }
+      }
+
+      function syncTutorialModeUI() {
+        communityNotice.style.display = config.tutorialHighlight ? 'none' : 'block';
+        if (config.tutorialHighlight) {
+          state.inkSplats = [];
+          state.lastInkNormPos = null;
+        } else {
+          state.inkSpawnTimer = 1.8;
         }
       }
 
@@ -1649,7 +1660,8 @@
         victoryOverlay.classList.remove('show');
 
         state.inkSplats = [];
-        state.inkSpawnTimer = 0.85;
+        state.inkSpawnTimer = 2.0;
+        state.lastInkNormPos = null;
 
         initGhostPointers();
         updateHUD();
