@@ -28,6 +28,9 @@
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
       user-select: none;
     }
 
@@ -35,6 +38,7 @@
       margin: 0;
       padding: 0;
       min-height: 100vh;
+      touch-action: manipulation;
       font-family: 'Silkscreen', 'VT323', monospace;
       color: var(--text-light);
       background-color: var(--ocean-deep);
@@ -447,6 +451,8 @@
       justify-content: space-between;
       padding: 4px 12px 2px;
       gap: 14px;
+      cursor: pointer;
+      touch-action: none;
     }
 
     .hold-circle-btn {
@@ -633,7 +639,6 @@
       font-size: 1.04rem;
       line-height: 1.25;
       color: #b4cfe2;
-      user-select: text;
     }
 
     .legal-footer p {
@@ -1235,9 +1240,9 @@
       }
 
       // =========================================================
-      // 5. GESTÃO DE INPUTS (ESPAÇO, MOUSE, TOQUE)
+      // 5. GESTÃO DE INPUTS (ESPAÇO, MOUSE E TOQUE — OTIMIZADO PARA SAFARI)
       // =========================================================
-      function setHolding(active) {
+      function setHolding(holding) {
         if (state.won) {
           state.isHolding = false;
           holdBtn.classList.remove('is-pressed');
@@ -1245,20 +1250,22 @@
           return;
         }
 
-        if (active && !state.hasStarted) {
+        if (holding && !state.hasStarted) {
           state.hasStarted = true;
         }
 
-        state.isHolding = active;
-        holdBtn.classList.toggle('is-pressed', active);
-        holdLabel.classList.toggle('is-pressed', active);
+        state.isHolding = holding;
+        holdBtn.classList.toggle('is-pressed', holding);
+        holdLabel.classList.toggle('is-pressed', holding);
       }
 
       // Teclado (ESPAÇO)
       window.addEventListener('keydown', (e) => {
         if (e.code === 'Space' || e.key === ' ') {
           e.preventDefault();
-          if (!state.isHolding) setHolding(true);
+          if (!e.repeat) {
+            setHolding(true);
+          }
         }
       });
 
@@ -1269,27 +1276,72 @@
         }
       });
 
-      // Mouse / Toque no mostrador e no botão circular
+      // Mouse / Toque no mostrador e na área do botão SEGURE (otimizado para Safari/iOS)
       function bindHoldElement(el) {
+        if (!el) return;
+
         el.addEventListener('pointerdown', (e) => {
           if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
           e.preventDefault();
           setHolding(true);
         });
+
+        // No iOS/iPadOS Safari, prevenir o touchstart cancela a lupa e o menu "Copiar / Selecionar Tudo"
+        el.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          setHolding(true);
+        }, { passive: false });
+
+        el.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          setHolding(false);
+        }, { passive: false });
+
+        el.addEventListener('touchcancel', (e) => {
+          e.preventDefault();
+          setHolding(false);
+        }, { passive: false });
+
+        el.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+        });
       }
 
+      const holdLabelWrap = holdLabel.parentElement;
       bindHoldElement(gaugeHitArea);
       bindHoldElement(holdBtn);
+      bindHoldElement(holdLabelWrap);
+
+      // Bloqueia seleção de texto e menu de toque longo dentro do modal do jogo
+      document.addEventListener('selectstart', (e) => {
+        e.preventDefault();
+      });
+
+      document.addEventListener('contextmenu', (e) => {
+        if (e.target.closest('.game-modal')) {
+          e.preventDefault();
+        }
+      });
 
       window.addEventListener('pointerup', () => setHolding(false));
       window.addEventListener('pointercancel', () => setHolding(false));
+      window.addEventListener('touchend', () => setHolding(false));
+      window.addEventListener('touchcancel', () => setHolding(false));
       window.addEventListener('blur', () => setHolding(false));
 
-      btnPlayAgain.addEventListener('click', resetGame);
-      btnQuickRestart.addEventListener('click', resetGame);
+      btnPlayAgain.addEventListener('click', () => {
+        btnPlayAgain.blur();
+        resetGame();
+      });
+
+      btnQuickRestart.addEventListener('click', () => {
+        btnQuickRestart.blur();
+        resetGame();
+      });
 
       chkTutorialHighlight.addEventListener('change', (e) => {
         config.tutorialHighlight = e.target.checked;
+        chkTutorialHighlight.blur();
         syncTutorialModeUI();
       });
 
