@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Tutorial Kraken — Habbo BR Origins</title>
+  <!-- Google Fonts para estética retro pixel-art -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --wood-outer: #4e3620;
+      --wood-inner: #3b2919;
+      --wood-dark: #24170c;
+      --wood-light: #7a5837;
+      --wood-moss: #4d5d2b;
+      --habbo-yellow: #ffd000;
+      --habbo-cyan: #24b6ff;
+      --habbo-green: #52e052;
+      --habbo-orange: #ff5b2e;
+      --ocean-deep: #0f4c75;
+      --ocean-mid: #166596;
+      --ocean-grid: rgba(255, 255, 255, 0.05);
+      --text-light: #f4efe6;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Silkscreen', 'VT323', monospace;
+      color: var(--text-light);
+      background-color: var(--ocean-deep);
+      /* Fundo oceano com grelha pixel-art */
+      background-image:
+        linear-gradient(var(--ocean-grid) 2px, transparent 2px),
+        linear-gradient(90deg, var(--ocean-grid) 2px, transparent 2px),
+        radial-gradient(circle at 50% 25%, #1b78ad 0%, #0d456b 65%, #082d47 100%);
+      background-size: 24px 24px, 24px 24px, 100% 100%;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    /* Moldura de madeira estilo Habbo Origins */
+    .wood-frame {
+      background: var(--wood-outer);
+      border: 3px solid var(--wood-dark);
+      box-shadow:
+        inset 3px 3px 0 var(--wood-light),
+        inset -3px -3px 0 #332213,
+        0 6px 0 rgba(0, 0, 0, 0.35);
+      padding: 8px;
+      position: relative;
+      border-radius: 4px;
+    }
+
+    /* Detalhe sutil de musgo/textura pixelada */
+    .wood-frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(var(--wood-moss) 2px, transparent 2px),
+        radial-gradient(rgba(0, 0, 0, 0.18) 2px, transparent 2px);
+      background-size: 28px 28px;
+      background-position: 0 0, 14px 14px;
+      opacity: 0.35;
+    }
+
+    .wood-inner {
+      background: var(--wood-inner);
+      border: 3px solid var(--wood-dark);
+      box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.35);
+      padding: 12px 14px;
+      position: relative;
+      z-index: 1;
+      border-radius: 2px;
+    }
+
+    .pixel-title {
+      color: var(--habbo-yellow);
+      text-shadow: 2px 2px 0 var(--wood-dark);
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+
+    /* Container principal */
+    .app-wrapper {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 14px 12px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Seletor de idioma no canto superior direito */
+    .lang-switcher {
+      position: fixed;
+      top: 12px;
+      right: 14px;
+      z-index: 60;
+      padding: 5px;
+    }
+
+    .lang-switcher-inner {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 6px;
+    }
+
+    .lang-btn {
+      font-family: 'Silkscreen', monospace;
+      font-size: 0.68rem;
+      background: #5a3e24;
+      color: #e6dcc8;
+      border: 2px solid var(--wood-dark);
+      box-shadow: inset 1px 1px 0 var(--wood-light), 0 2px 0 var(--wood-dark);
+      padding: 4px 7px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: transform 0.06s, background 0.1s;
+    }
+
+    .lang-btn:hover {
+      background: #735131;
+      color: #ffffff;
+    }
+
+    .lang-btn.active {
+      background: var(--habbo-yellow);
+      color: var(--wood-dark);
+      box-shadow: inset 1px 1px 0 #fff5ad, 0 2px 0 var(--wood-dark);
+      font-weight: 700;
+    }
+
+    .lang-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* 1. Barra superior "Ondas" */
+    .wave-header {
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .wave-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 8px 14px;
+    }
+
+    .wave-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .wave-label {
+      font-size: 0.9rem;
+      color: #fff;
+      text-shadow: 2px 2px 0 var(--wood-dark);
+      white-space: nowrap;
+    }
+
+    .retro-bar-outer {
+      background: #e5e5e5;
+      border: 3px solid #1a1a1a;
+      border-radius: 6px;
+      padding: 2px;
+      box-shadow: inset 0 2px 0 #ffffff, 0 2px 0 rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wave-bar {
+      height: 22px;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .retro-bar-track {
+      width: 100%;
+      height: 100%;
+      background: #bdbdbd;
+      border: 2px solid #7d7d7d;
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .retro-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(180deg, #6bd4ff 0%, #249be8 55%, #1676bd 100%);
+      border-right: 2px solid #0e4a78;
+      transition: width 0.08s linear;
+    }
+
+    .wave-status {
+      font-size: 0.78rem;
+      color: var(--habbo-yellow);
+      text-shadow: 2px 2px 0 var(--wood-dark);
+      white-space: nowrap;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .pixel-btn-small {
+      font-family: 'Silkscreen', monospace;
+      font-size: 0.7rem;
+      background: #614429;
+      color: #fff;
+      border: 2px solid var(--wood-dark);
+      box-shadow: inset 2px 2px 0 var(--wood-light), 0 2px 0 var(--wood-dark);
+      padding: 5px 8px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: transform 0.06s;
+    }
+
+    .pixel-btn-small:hover {
+      background: #735131;
+    }
+
+    .pixel-btn-small:active {
+      transform: translateY(2px);
+      box-shadow: inset 1px 1px 0 var(--wood-light);
+    }
+
+    /* 2. Cartão de Tutorial Interativo */
+    .tutorial-card {
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .tutorial-title {
+      text-align: center;
+      font-size: 1.02rem;
+      margin-bottom: 12px;
+    }
+
+    .tutorial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tutorial-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 4px;
+      border: 2px solid transparent;
+      background: rgba(0, 0, 0, 0.16);
+      transition: all 0.12s ease;
+    }
+
+    .tutorial-step.lit-hold {
+      border-color: var(--habbo-yellow);
+      background: rgba(255, 208, 0, 0.16);
+      box-shadow: 0 0 12px rgba(255, 208, 0, 0.45);
+      transform: translateY(-2px);
+    }
+
+    .tutorial-step.lit-release {
+      border-color: var(--habbo-cyan);
+      background: rgba(36, 182, 255, 0.15);
+      box-shadow: 0 0 12px rgba(36, 182, 255, 0.4);
+    }
+
+    .tutorial-step.lit-kraken {
+      border-color: var(--habbo-green);
+      background: rgba(82, 224, 82, 0.18);
+      box-shadow: 0 0 14px rgba(82, 224, 82, 0.55);
+      transform: translateY(-2px);
+    }
+
+    .tutorial-icon-wrap {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+
+    .tutorial-text {
+      font-family: 'VT323', monospace;
+      font-size: 1.25rem;
+      line-height: 1.1;
+      color: #f4efe6;
+      text-shadow: 1px 1px 0 #1a1008;
+    }
+
+    .tutorial-footer {
+      text-align: center;
+      color: var(--habbo-yellow);
+      font-family: 'VT323', monospace;
+      font-size: 1.32rem;
+      text-shadow: 2px 2px 0 var(--wood-dark);
+      border-top: 2px dashed rgba(255, 208, 0, 0.25);
+      padding-top: 8px;
+    }
+
+    /* Área principal centralizada */
+    .main-stage {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* 3. Modal Principal "TODOS JUNTOS" */
+    .game-modal {
+      width: 100%;
+      max-width: 390px;
+      flex-shrink: 0;
+    }
+
+    .game-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .game-title {
+      font-size: 1.05rem;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Barra de puxar dentro do modal */
+    .pull-bar-wrap {
+      width: 100%;
+      position: relative;
+    }
+
+    .pull-bar {
+      height: 30px;
+      width: 100%;
+    }
+
+    .pull-bar-pct {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.85);
+      pointer-events: none;
+    }
+
+    /* Mostrador Canvas */
+    .gauge-container {
+      width: 100%;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      touch-action: none;
+      padding: 4px 0;
+    }
+
+    canvas#krakenGauge {
+      width: 100%;
+      max-width: 330px;
+      height: auto;
+      display: block;
+      image-rendering: crisp-edges;
+    }
+
+    /* Status ao vivo abaixo do mostrador (altura fixa para eliminar qualquer salto na UI) */
+    .zone-feedback {
+      font-family: 'VT323', monospace;
+      font-size: 1.18rem;
+      line-height: 1.15;
+      height: 52px;
+      min-height: 52px;
+      max-height: 52px;
+      flex-shrink: 0;
+      width: 100%;
+      padding: 0 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      letter-spacing: 0.5px;
+      color: #d6cbb8;
+      text-shadow: 1px 1px 0 #1b1109;
+      overflow: hidden;
+    }
+
+    .zone-feedback.in-zone {
+      color: var(--habbo-green);
+      text-shadow: 0 0 8px rgba(82, 224, 82, 0.6), 1px 1px 0 #0c260c;
+    }
+
+    .community-notice {
+      font-family: 'VT323', monospace;
+      font-size: 1.08rem;
+      line-height: 1.15;
+      text-align: center;
+      color: #ffd97d;
+      background: rgba(255, 91, 46, 0.16);
+      border: 1px dashed rgba(255, 208, 0, 0.45);
+      padding: 5px 8px;
+      border-radius: 3px;
+      width: 100%;
+    }
+
+    /* Controlo inferior: Botão circular + SEGURE */
+    .hold-control-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 12px 2px;
+      gap: 14px;
+    }
+
+    .hold-circle-btn {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #ececec;
+      border: 4px solid #1a1a1a;
+      box-shadow:
+        inset 0 4px 0 #ffffff,
+        inset 0 -4px 0 #b5b5b5,
+        0 5px 0 #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      touch-action: none;
+      transition: transform 0.06s, box-shadow 0.06s, background 0.08s;
+      padding: 0;
+    }
+
+    .hold-circle-btn:hover {
+      background: #ffffff;
+    }
+
+    .hold-circle-btn.is-pressed {
+      transform: translateY(4px) scale(0.97);
+      background: #ffe875;
+      box-shadow:
+        inset 0 3px 0 #fff7c2,
+        inset 0 -2px 0 #d4a600,
+        0 1px 0 #1a1a1a,
+        0 0 16px rgba(255, 208, 0, 0.65);
+    }
+
+    .hold-label-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hold-label {
+      font-size: 1.25rem;
+      color: #ffffff;
+      text-shadow: 2px 2px 0 #1a1008;
+      letter-spacing: 1px;
+    }
+
+    .hold-label.is-pressed {
+      color: var(--habbo-yellow);
+    }
+
+    .hold-sub {
+      font-family: 'VT323', monospace;
+      font-size: 1.1rem;
+      color: #cbbba2;
+    }
+
+    /* 4. Overlay de Vitória */
+    .victory-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(24, 14, 7, 0.92);
+      z-index: 20;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      border-radius: 2px;
+      animation: popIn 0.22s ease-out;
+    }
+
+    .victory-overlay.show {
+      display: flex;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .victory-title {
+      font-size: 1.35rem;
+      color: var(--habbo-yellow);
+      text-shadow: 3px 3px 0 #1a0f07;
+      margin: 8px 0 12px;
+    }
+
+    .victory-stats {
+      width: 100%;
+      background: #2b1d11;
+      border: 2px solid var(--wood-light);
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      border-radius: 4px;
+      font-family: 'VT323', monospace;
+      font-size: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .victory-stats strong {
+      color: var(--habbo-cyan);
+    }
+
+    .pixel-btn-primary {
+      font-family: 'Silkscreen', monospace;
+      font-size: 0.9rem;
+      background: linear-gradient(180deg, #ffe03b 0%, #e8a800 100%);
+      color: #24170c;
+      border: 3px solid #1a1008;
+      box-shadow: inset 2px 2px 0 #fff5ad, 0 4px 0 #1a1008;
+      padding: 10px 18px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .pixel-btn-primary:hover {
+      filter: brightness(1.06);
+    }
+
+    .pixel-btn-primary:active {
+      transform: translateY(3px);
+      box-shadow: inset 1px 1px 0 #fff5ad, 0 1px 0 #1a1008;
+    }
+
+    /* 5. Cartão compacto de alternância Tutorial / Comunidade */
+    .mode-toggle-card {
+      width: 100%;
+      max-width: 390px;
+    }
+
+    .mode-toggle-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px 14px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      font-family: 'VT323', monospace;
+      font-size: 1.3rem;
+      color: #ffe28a;
+      text-shadow: 1px 1px 0 #1a1008;
+    }
+
+    .check-row input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--habbo-yellow);
+      cursor: pointer;
+    }
+
+    .mode-toggle-hint {
+      font-family: 'VT323', monospace;
+      font-size: 1.08rem;
+      color: #cbbba2;
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    /* 6. Rodapé legal discreto (Política de Fã Sites Habbo) */
+    .legal-footer {
+      max-width: 720px;
+      width: 100%;
+      margin: 8px auto 0;
+      padding: 12px 16px;
+      text-align: center;
+      background: rgba(8, 30, 48, 0.62);
+      border: 1px solid rgba(136, 198, 238, 0.2);
+      border-radius: 6px;
+      font-family: 'VT323', monospace;
+      font-size: 1.04rem;
+      line-height: 1.25;
+      color: #b4cfe2;
+      user-select: text;
+    }
+
+    .legal-footer p {
+      margin: 0;
+    }
+
+    .legal-footer .legal-sub {
+      margin-top: 6px;
+      font-size: 0.96rem;
+      color: #88aec7;
+    }
+
+    /* Evita sobreposição do seletor de idioma em ecrãs mais estreitos */
+    @media (max-width: 1080px) {
+      .lang-switcher {
+        position: static;
+        align-self: flex-end;
+      }
+    }
+
+    /* Responsividade Mobile */
+    @media (max-width: 640px) {
+      .tutorial-grid {
+        gap: 6px;
+      }
+      .tutorial-text {
+        font-size: 1.05rem;
+      }
+      .tutorial-icon-wrap {
+        width: 44px;
+        height: 44px;
+      }
+      .zone-feedback {
+        font-size: 1.08rem;
+      }
+      .wave-inner {
+        padding: 8px 10px;
+      }
+      .game-modal, .mode-toggle-card {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- SELETOR DE IDIOMAS (CANTO SUPERIOR DIREITO) -->
+    <nav class="wood-frame lang-switcher" aria-label="Selecionar idioma">
+      <div class="wood-inner lang-switcher-inner">
+        <button type="button" class="lang-btn active" data-lang="pt" title="Português (BR)">PT</button>
+        <button type="button" class="lang-btn" data-lang="en" title="English">EN</button>
+        <button type="button" class="lang-btn" data-lang="es" title="Español">ES</button>
+        <button type="button" class="lang-btn" data-lang="fr" title="Français">FR</button>
+      </div>
+    </nav>
+
+    <!-- 1. BARRA SUPERIOR (ONDAS) -->
+    <header class="wood-frame wave-header">
+      <div class="wood-inner wave-inner">
+        <div class="wave-left">
+          <span class="wave-label" id="waveLabel">Ondas</span>
+          <div class="retro-bar-outer wave-bar" aria-label="Progresso da onda">
+            <div class="retro-bar-track">
+              <div class="retro-bar-fill" id="waveBarFill" style="width: 14%;"></div>
+            </div>
+          </div>
+        </div>
+        <span class="wave-status" id="waveStatus">Habbo BR Origins — Treino</span>
+        <div class="header-actions">
+          <button type="button" class="pixel-btn-small" id="btnQuickRestart" title="Reiniciar tentativa">↺ RESET</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. CARTÃO DE TUTORIAL INTERATIVO -->
+    <section class="wood-frame tutorial-card" aria-label="Instruções de como puxar o Kraken">
+      <div class="wood-inner">
+        <h1 class="pixel-title tutorial-title" id="tutorialTitle">Como puxá-lo para cima</h1>
+        <div class="tutorial-grid">
+          <!-- Coluna 1: Segurar -->
+          <div class="tutorial-step" id="stepHold">
+            <div class="tutorial-icon-wrap" id="iconHoldWrap">
+              <!-- SVG Seta Circular preenchido via JS -->
+            </div>
+            <div class="tutorial-text" id="textHold">Segure para virar o ponteiro à direita</div>
+          </div>
+
+          <!-- Coluna 2: Soltar -->
+          <div class="tutorial-step" id="stepRelease">
+            <div class="tutorial-icon-wrap" id="iconReleaseWrap">
+              <!-- SVG Seta Circular Oposta preenchido via JS -->
+            </div>
+            <div class="tutorial-text" id="textRelease">Solte para ele voltar</div>
+          </div>
+
+          <!-- Coluna 3: Kraken -->
+          <div class="tutorial-step" id="stepKraken">
+            <div class="tutorial-icon-wrap">
+              <!-- SVG Pixel-Art Kraken Roxo -->
+              <svg width="52" height="52" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+                <rect x="1" y="13" width="14" height="3" fill="#1d9bf0"/>
+                <rect x="2" y="14" width="12" height="2" fill="#ff5b2e"/>
+                <rect x="5" y="1" width="6" height="1" fill="#290742"/>
+                <rect x="4" y="2" width="8" height="1" fill="#290742"/>
+                <rect x="3" y="3" width="10" height="5" fill="#290742"/>
+                <rect x="5" y="2" width="6" height="1" fill="#9b30ff"/>
+                <rect x="4" y="3" width="8" height="4" fill="#9b30ff"/>
+                <rect x="5" y="3" width="3" height="2" fill="#cf8cff"/>
+                <rect x="5" y="5" width="2" height="2" fill="#ffffff"/>
+                <rect x="9" y="5" width="2" height="2" fill="#ffffff"/>
+                <rect x="6" y="6" width="1" height="1" fill="#111111"/>
+                <rect x="9" y="6" width="1" height="1" fill="#111111"/>
+                <rect x="2" y="8" width="12" height="2" fill="#290742"/>
+                <rect x="3" y="8" width="10" height="1" fill="#8222db"/>
+                <rect x="1" y="10" width="2" height="3" fill="#9b30ff"/>
+                <rect x="4" y="9" width="2" height="4" fill="#9b30ff"/>
+                <rect x="7" y="9" width="2" height="5" fill="#9b30ff"/>
+                <rect x="10" y="9" width="2" height="4" fill="#9b30ff"/>
+                <rect x="13" y="10" width="2" height="3" fill="#9b30ff"/>
+              </svg>
+            </div>
+            <div class="tutorial-text" id="textKraken">Mantenha o ponteiro sob o Kraken</div>
+          </div>
+        </div>
+        <div class="tutorial-footer" id="tutorialFooter">
+          Segure ESPAÇO ou segure o clique do mouse no mostrador.
+        </div>
+      </div>
+    </section>
+
+    <!-- ÁREA PRINCIPAL: MINIJOGO + ALTERNÂNCIA DE MODO -->
+    <main class="main-stage">
+      <!-- 3. MODAL PRINCIPAL DO MINIJOGO -->
+      <section class="wood-frame game-modal" aria-label="Minijogo Todos Juntos">
+        <div class="wood-inner game-inner">
+          <h2 class="pixel-title game-title" id="gameTitle">TODOS JUNTOS</h2>
+
+          <!-- Barra horizontal de progresso -->
+          <div class="pull-bar-wrap">
+            <div class="retro-bar-outer pull-bar">
+              <div class="retro-bar-track">
+                <div class="retro-bar-fill" id="pullBarFill"></div>
+              </div>
+              <div class="pull-bar-pct" id="pullBarPct">0%</div>
+            </div>
+          </div>
+
+          <!-- Mostrador Semicircular (Canvas responsivo HiDPI) -->
+          <div class="gauge-container" id="gaugeHitArea" title="Segure aqui ou aperte ESPAÇO">
+            <canvas id="krakenGauge"></canvas>
+          </div>
+
+          <!-- Feedback textual ao vivo -->
+          <div class="zone-feedback" id="zoneFeedback">
+            Segure ESPAÇO ou o botão abaixo para mover!
+          </div>
+
+          <!-- Aviso do Modo Comunidade (visível quando o destaque tutorial está desligado) -->
+          <div class="community-notice" id="communityNotice" style="display: none;">
+            Modo Comunidade ativo: tente não perder seu ponteiro no meio dos outros jogadores!
+          </div>
+
+          <!-- Botão circular + SEGURE -->
+          <div class="hold-control-row">
+            <button type="button" class="hold-circle-btn" id="holdBtn" aria-label="Segure para mover o ponteiro">
+              <!-- Seta SVG inserida dinamicamente -->
+            </button>
+            <div class="hold-label-wrap">
+              <div class="hold-label" id="holdLabel">SEGURE</div>
+              <div class="hold-sub" id="holdSub">(Espaço / Clique / Toque)</div>
+            </div>
+          </div>
+
+          <!-- 4. OVERLAY DE VITÓRIA -->
+          <div class="victory-overlay" id="victoryOverlay" role="dialog" aria-modal="true">
+            <svg width="64" height="64" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="5" y="1" width="6" height="1" fill="#ffd000"/>
+              <rect x="4" y="2" width="8" height="5" fill="#9b30ff"/>
+              <rect x="5" y="2" width="3" height="2" fill="#cf8cff"/>
+              <rect x="5" y="4" width="2" height="2" fill="#fff"/>
+              <rect x="9" y="4" width="2" height="2" fill="#fff"/>
+              <rect x="6" y="5" width="1" height="1" fill="#000"/>
+              <rect x="9" y="5" width="1" height="1" fill="#000"/>
+              <rect x="2" y="7" width="12" height="2" fill="#8222db"/>
+              <rect x="2" y="9" width="2" height="4" fill="#9b30ff"/>
+              <rect x="5" y="9" width="2" height="5" fill="#9b30ff"/>
+              <rect x="9" y="9" width="2" height="5" fill="#9b30ff"/>
+              <rect x="12" y="9" width="2" height="4" fill="#9b30ff"/>
+            </svg>
+            <div class="victory-title" id="victoryTitle">KRAKEN PUXADO!</div>
+            <div class="victory-stats">
+              <div><span id="statTimeLabel">Tempo total:</span> <strong id="statTime">0.0s</strong></div>
+              <div><span id="statAccuracyLabel">Precisão na área:</span> <strong id="statAccuracy">0%</strong></div>
+            </div>
+            <button type="button" class="pixel-btn-primary" id="btnPlayAgain">Jogar Novamente</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. OPÇÃO DE MODO TUTORIAL / COMUNIDADE -->
+      <section class="wood-frame mode-toggle-card" aria-label="Opção de destaque do ponteiro">
+        <div class="wood-inner mode-toggle-inner">
+          <label class="check-row">
+            <input type="checkbox" id="chkTutorialHighlight" checked />
+            <span id="tutorialToggleLabel">Destacar Meu Ponteiro (Tutorial)</span>
+          </label>
+          <div class="mode-toggle-hint" id="modeToggleHint">
+            Desmarque para treinar com vários ponteiros da comunidade ao mesmo tempo.
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 6. RODAPÉ LEGAL (POLÍTICA DE FÃ SITES HABBO) -->
+    <footer class="legal-footer" aria-label="Aviso legal">
+      <p id="legalDisclaimer">
+        Esta Fã Site não está afiliada com, patrocinada por, apoiada por, ou principalmente aprovada pela Sulake Oy ou suas empresas Afiliadas. Esta Fã Site pode utilizar as marcas registradas e outras propriedades intelectuais do Habbo, que estão permitidas sob a Política de Fã Sites Habbo.
+      </p>
+      <p class="legal-sub" id="legalSub">
+        Simulador de treino gratuito e sem fins lucrativos feito pela comunidade.
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================
+      // 0. DICIONÁRIO DE IDIOMAS (PADRÃO: PT/BR)
+      // =========================================================
+      const TRANSLATIONS = {
+        pt: {
+          htmlLang: 'pt-BR',
+          pageTitle: 'Tutorial Kraken — Habbo BR Origins',
+          waveLabel: 'Ondas',
+          waveStatus: 'Habbo BR Origins — Treino',
+          resetTitle: 'Reiniciar tentativa',
+          resetBtn: '↺ RESET',
+          tutorialTitle: 'Como puxá-lo para cima',
+          textHoldRight: 'Segure para virar o ponteiro à direita',
+          textHoldLeft: 'Segure para virar o ponteiro à esquerda',
+          textRelease: 'Solte para ele voltar',
+          textKraken: 'Mantenha o ponteiro sob o Kraken',
+          tutorialFooter: 'Segure ESPAÇO ou segure o clique do mouse no mostrador.',
+          gameTitle: 'TODOS JUNTOS',
+          gaugeTitle: 'Segure aqui ou aperte ESPAÇO',
+          feedbackWon: 'Boa! Você dominou o Kraken!',
+          feedbackInZone: 'ISSO! Mantenha o ponteiro na área amarela!',
+          feedbackIdle: 'Segure ESPAÇO ou o botão abaixo para mover!',
+          feedbackHold: 'Segure para alcançar o Kraken →',
+          feedbackRelease: '← Solte para voltar ao Kraken',
+          communityNotice: 'Modo Comunidade ativo: tente não perder seu ponteiro no meio dos outros jogadores!',
+          holdLabel: 'SEGURE',
+          holdSub: '(Espaço / Clique / Toque)',
+          holdBtnAria: 'Segure para mover o ponteiro',
+          victoryTitle: 'KRAKEN PUXADO!',
+          statTimeLabel: 'Tempo total:',
+          statAccuracyLabel: 'Precisão na área:',
+          btnPlayAgain: 'Jogar Novamente',
+          tutorialToggleLabel: 'Destacar Meu Ponteiro (Tutorial)',
+          modeToggleHint: 'Desmarque para treinar com vários ponteiros da comunidade ao mesmo tempo.',
+          pointerBadge: 'SEU PONTEIRO',
+          legalDisclaimer: 'Esta Fã Site não está afiliada com, patrocinada por, apoiada por, ou principalmente aprovada pela Sulake Oy ou suas empresas Afiliadas. Esta Fã Site pode utilizar as marcas registradas e outras propriedades intelectuais do Habbo, que estão permitidas sob a Política de Fã Sites Habbo.',
+          legalSub: 'Simulador de treino gratuito e sem fins lucrativos feito pela comunidade.'
+        },
+        en: {
+          htmlLang: 'en',
+          pageTitle: 'Kraken Tutorial — Habbo Origins',
+          waveLabel: 'Waves',
+          waveStatus: 'Habbo Origins — Practice',
+          resetTitle: 'Restart attempt',
+          resetBtn: '↺ RESET',
+          tutorialTitle: 'How to pull it up',
+          textHoldRight: 'Hold to turn the pointer right',
+          textHoldLeft: 'Hold to turn the pointer left',
+          textRelease: 'Release to let it return',
+          textKraken: 'Keep the pointer under the Kraken',
+          tutorialFooter: 'Hold SPACE or hold the mouse button on the dial.',
+          gameTitle: 'ALL TOGETHER',
+          gaugeTitle: 'Hold here or press SPACE',
+          feedbackWon: 'Nice! You mastered the Kraken!',
+          feedbackInZone: 'YES! Keep the pointer in the yellow zone!',
+          feedbackIdle: 'Hold SPACE or the button below to move!',
+          feedbackHold: 'Hold to reach the Kraken →',
+          feedbackRelease: '← Release to return to the Kraken',
+          communityNotice: 'Community Mode active: try not to lose your pointer among the other players!',
+          holdLabel: 'HOLD',
+          holdSub: '(Space / Click / Touch)',
+          holdBtnAria: 'Hold to move the pointer',
+          victoryTitle: 'KRAKEN PULLED UP!',
+          statTimeLabel: 'Total time:',
+          statAccuracyLabel: 'Zone accuracy:',
+          btnPlayAgain: 'Play Again',
+          tutorialToggleLabel: 'Highlight My Pointer (Tutorial)',
+          modeToggleHint: 'Uncheck to practice with multiple community pointers at the same time.',
+          pointerBadge: 'YOUR POINTER',
+          legalDisclaimer: 'This Fan Site is not affiliated with, endorsed, sponsored, or specifically approved by Sulake Oy or its Affiliates. This Fan Site may use the trademarks and other intellectual property of Habbo, which is permitted under Habbo Fan Site Policy.',
+          legalSub: 'Free, non-profit community practice simulator.'
+        },
+        es: {
+          htmlLang: 'es',
+          pageTitle: 'Tutorial Kraken — Habbo Origins',
+          waveLabel: 'Olas',
+          waveStatus: 'Habbo Origins — Práctica',
+          resetTitle: 'Reiniciar intento',
+          resetBtn: '↺ RESET',
+          tutorialTitle: 'Cómo subirlo',
+          textHoldRight: 'Mantén para girar la flecha a la derecha',
+          textHoldLeft: 'Mantén para girar la flecha a la izquierda',
+          textRelease: 'Suelta para que vuelva',
+          textKraken: 'Mantén la flecha bajo el Kraken',
+          tutorialFooter: 'Mantén ESPACIO o mantén el clic del ratón en el medidor.',
+          gameTitle: 'TODOS JUNTOS',
+          gaugeTitle: 'Mantén aquí o pulsa ESPACIO',
+          feedbackWon: '¡Bien! ¡Dominaste al Kraken!',
+          feedbackInZone: '¡ESO! ¡Mantén la flecha en zona amarilla!',
+          feedbackIdle: '¡Mantén ESPACIO o el botón para mover!',
+          feedbackHold: 'Mantén para alcanzar al Kraken →',
+          feedbackRelease: '← Suelta para volver al Kraken',
+          communityNotice: 'Modo Comunidad activo: ¡intenta no perder tu flecha entre los demás jugadores!',
+          holdLabel: 'MANTÉN',
+          holdSub: '(Espacio / Clic / Toque)',
+          holdBtnAria: 'Mantén para mover la flecha',
+          victoryTitle: '¡KRAKEN ATRAPADO!',
+          statTimeLabel: 'Tiempo total:',
+          statAccuracyLabel: 'Precisión en zona:',
+          btnPlayAgain: 'Jugar de Nuevo',
+          tutorialToggleLabel: 'Destacar Mi Flecha (Tutorial)',
+          modeToggleHint: 'Desmarca para practicar con varias flechas de la comunidad al mismo tiempo.',
+          pointerBadge: 'TU FLECHA',
+          legalDisclaimer: 'Esta Web Fan no está afiliada con, respaldada, promocionada o aprobada específicamente por Sulake Oy o sus Afiliados. Esta Web Fan puede utilizar las marcas comerciales y otra propiedad intelectual de Habbo, lo cual está permitido bajo la Política de Webs Fans de Habbo.',
+          legalSub: 'Simulador de práctica gratuito y sin fines de lucro hecho por la comunidad.'
+        },
+        fr: {
+          htmlLang: 'fr',
+          pageTitle: 'Tutoriel Kraken — Habbo Origins',
+          waveLabel: 'Vagues',
+          waveStatus: 'Habbo Origins — Entraînement',
+          resetTitle: 'Recommencer',
+          resetBtn: '↺ RESET',
+          tutorialTitle: 'Comment le remonter',
+          textHoldRight: "Maintiens pour tourner l'aiguille à droite",
+          textHoldLeft: "Maintiens pour tourner l'aiguille à gauche",
+          textRelease: "Relâche pour qu'elle revienne",
+          textKraken: "Maintiens l'aiguille sous le Kraken",
+          tutorialFooter: 'Maintiens ESPACE ou le clic de la souris sur le cadran.',
+          gameTitle: 'TOUS ENSEMBLE',
+          gaugeTitle: 'Maintiens ici ou appuie sur ESPACE',
+          feedbackWon: 'Bravo ! Tu maîtrises le Kraken !',
+          feedbackInZone: "OUI ! Garde l'aiguille dans la zone jaune !",
+          feedbackIdle: 'Maintiens ESPACE ou le bouton pour bouger !',
+          feedbackHold: 'Maintiens pour atteindre le Kraken →',
+          feedbackRelease: '← Relâche pour revenir sur le Kraken',
+          communityNotice: "Mode Communauté actif : essaie de ne pas perdre ton aiguille parmi les autres joueurs !",
+          holdLabel: 'MAINTIENS',
+          holdSub: '(Espace / Clic / Tactile)',
+          holdBtnAria: "Maintiens pour déplacer l'aiguille",
+          victoryTitle: 'KRAKEN REMONTÉ !',
+          statTimeLabel: 'Temps total :',
+          statAccuracyLabel: 'Précision en zone :',
+          btnPlayAgain: 'Rejouer',
+          tutorialToggleLabel: 'Surligner Mon Aiguille (Tutoriel)',
+          modeToggleHint: "Décoche pour t'entraîner avec plusieurs aiguilles de la communauté en même temps.",
+          pointerBadge: 'TON AIGUILLE',
+          legalDisclaimer: "Ce Site de Fan n'est pas affilié à, soutenu, sponsorisé ou spécifiquement approuvé par Sulake Oy ou ses sociétés affiliées. Ce Site de Fan peut utiliser les marques déposées et autres propriétés intellectuelles de Habbo, ce qui est autorisé dans le cadre de la Politique des Sites de Fans Habbo.",
+          legalSub: "Simulateur d'entraînement gratuit et à but non lucratif créé par la communauté."
+        }
+      };
+
+      let currentLang = 'pt';
+
+      function t(key) {
+        return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.pt[key];
+      }
+
+      // =========================================================
+      // 1. CONFIGURAÇÕES CALIBRADAS (FIEIS AO JOGO)
+      // =========================================================
+      const config = {
+        direction: 'right',      // Segurar -> Direita | Soltar -> Esquerda
+        physics: 'linear',       // Linear (seco)
+        pointerSpeed: 0.50,      // Velocidade do ponteiro (unidades normalizadas/s)
+        krakenSpeed: 0.20,       // Velocidade do Kraken (unidades normalizadas/s)
+        zoneDegrees: 34,         // Tamanho da área do Kraken em graus
+        barSpeed: 8,             // Velocidade de enchimento da barra (%/s)
+        barDecay: 2.0,           // Decaimento suave fora da área (%/s)
+        tutorialHighlight: true  // Padrão: destacar ponteiro do jogador
+      };
+
+      // Estado dinâmico do jogo
+      const state = {
+        pointerPos: 0.08,        // 0 = esquerda, 1 = direita
+        krakenPos: 0.55,         // Centro da área do Kraken (0..1)
+        krakenTarget: 0.72,      // Próximo alvo do Kraken
+        krakenWaitTimer: 0.6,    // Pausa curta antes de mudar de direção
+        progress: 0,             // Progresso da barra (0..100)
+        isHolding: false,
+        isInZone: false,
+        hasStarted: false,
+        won: false,
+        elapsedTime: 0,
+        timeInZone: 0,
+        lastTimestamp: 0,
+        animTime: 0,
+        ghosts: []
+      };
+
+      // =========================================================
+      // 2. REFERÊNCIAS DO DOM
+      // =========================================================
+      const canvas = document.getElementById('krakenGauge');
+      const ctx = canvas.getContext('2d');
+
+      const gaugeHitArea = document.getElementById('gaugeHitArea');
+      const holdBtn = document.getElementById('holdBtn');
+      const holdLabel = document.getElementById('holdLabel');
+      const holdSub = document.getElementById('holdSub');
+      const zoneFeedback = document.getElementById('zoneFeedback');
+      const communityNotice = document.getElementById('communityNotice');
+
+      const waveLabel = document.getElementById('waveLabel');
+      const waveStatus = document.getElementById('waveStatus');
+      const pullBarFill = document.getElementById('pullBarFill');
+      const pullBarPct = document.getElementById('pullBarPct');
+      const waveBarFill = document.getElementById('waveBarFill');
+
+      const tutorialTitle = document.getElementById('tutorialTitle');
+      const stepHold = document.getElementById('stepHold');
+      const stepRelease = document.getElementById('stepRelease');
+      const stepKraken = document.getElementById('stepKraken');
+      const iconHoldWrap = document.getElementById('iconHoldWrap');
+      const iconReleaseWrap = document.getElementById('iconReleaseWrap');
+      const textHold = document.getElementById('textHold');
+      const textRelease = document.getElementById('textRelease');
+      const textKraken = document.getElementById('textKraken');
+      const tutorialFooter = document.getElementById('tutorialFooter');
+      const gameTitle = document.getElementById('gameTitle');
+
+      const victoryOverlay = document.getElementById('victoryOverlay');
+      const victoryTitle = document.getElementById('victoryTitle');
+      const statTimeLabel = document.getElementById('statTimeLabel');
+      const statAccuracyLabel = document.getElementById('statAccuracyLabel');
+      const statTime = document.getElementById('statTime');
+      const statAccuracy = document.getElementById('statAccuracy');
+      const btnPlayAgain = document.getElementById('btnPlayAgain');
+      const btnQuickRestart = document.getElementById('btnQuickRestart');
+
+      const chkTutorialHighlight = document.getElementById('chkTutorialHighlight');
+      const tutorialToggleLabel = document.getElementById('tutorialToggleLabel');
+      const modeToggleHint = document.getElementById('modeToggleHint');
+      const legalDisclaimer = document.getElementById('legalDisclaimer');
+      const legalSub = document.getElementById('legalSub');
+      const langButtons = document.querySelectorAll('.lang-btn');
+
+      // Dimensões lógicas do canvas (atualizadas em resizeCanvas)
+      let logicalWidth = 330;
+      let logicalHeight = 205;
+
+      // =========================================================
+      // 3. SVG HELPERS & INTERNACIONALIZAÇÃO
+      // =========================================================
+      function createCircleArrowSVG(dir, size) {
+        const flip = dir === 'left' ? 'transform="scale(-1, 1) translate(-32, 0)"' : '';
+        return (
+          '<svg width="' + size + '" height="' + size + '" viewBox="0 0 32 32" aria-hidden="true">' +
+            '<circle cx="16" cy="16" r="14" fill="#ececec" stroke="#1a1a1a" stroke-width="2.5"/>' +
+            '<circle cx="16" cy="16" r="11" fill="none" stroke="#ffffff" stroke-width="1.5"/>' +
+            '<g ' + flip + '>' +
+              '<path d="M9 13 H16 V8.5 L24 16 L16 23.5 V19 H9 Z" fill="#8b8b8b" stroke="#222222" stroke-width="1.6" stroke-linejoin="round"/>' +
+            '</g>' +
+          '</svg>'
+        );
+      }
+
+      function createButtonArrowSVG(dir) {
+        const flip = dir === 'left' ? 'transform="scale(-1, 1) translate(-32, 0)"' : '';
+        return (
+          '<svg width="42" height="42" viewBox="0 0 32 32" aria-hidden="true">' +
+            '<g ' + flip + '>' +
+              '<path d="M7 12.5 H16 V7.5 L25.5 16 L16 24.5 V19.5 H7 Z" fill="#8a8a8a" stroke="#1e1e1e" stroke-width="2" stroke-linejoin="round"/>' +
+            '</g>' +
+          '</svg>'
+        );
+      }
+
+      function updateDirectionUI() {
+        const isRight = config.direction === 'right';
+        iconHoldWrap.innerHTML = createCircleArrowSVG(isRight ? 'right' : 'left', 48);
+        iconReleaseWrap.innerHTML = createCircleArrowSVG(isRight ? 'left' : 'right', 48);
+        textHold.textContent = isRight ? t('textHoldRight') : t('textHoldLeft');
+        holdBtn.innerHTML = createButtonArrowSVG(isRight ? 'right' : 'left');
+      }
+
+      function applyLanguage(lang) {
+        currentLang = TRANSLATIONS[lang] ? lang : 'pt';
+
+        try {
+          localStorage.setItem('kraken_tutorial_lang', currentLang);
+        } catch (_) {}
+
+        document.documentElement.lang = t('htmlLang');
+        document.title = t('pageTitle');
+
+        waveLabel.textContent = t('waveLabel');
+        waveStatus.textContent = t('waveStatus');
+        btnQuickRestart.textContent = t('resetBtn');
+        btnQuickRestart.title = t('resetTitle');
+
+        tutorialTitle.textContent = t('tutorialTitle');
+        textRelease.textContent = t('textRelease');
+        textKraken.textContent = t('textKraken');
+        tutorialFooter.textContent = t('tutorialFooter');
+
+        gameTitle.textContent = t('gameTitle');
+        gaugeHitArea.title = t('gaugeTitle');
+        communityNotice.textContent = t('communityNotice');
+        holdLabel.textContent = t('holdLabel');
+        holdSub.textContent = t('holdSub');
+        holdBtn.setAttribute('aria-label', t('holdBtnAria'));
+
+        victoryTitle.textContent = t('victoryTitle');
+        statTimeLabel.textContent = t('statTimeLabel');
+        statAccuracyLabel.textContent = t('statAccuracyLabel');
+        btnPlayAgain.textContent = t('btnPlayAgain');
+
+        tutorialToggleLabel.textContent = t('tutorialToggleLabel');
+        modeToggleHint.textContent = t('modeToggleHint');
+
+        legalDisclaimer.textContent = t('legalDisclaimer');
+        legalSub.textContent = t('legalSub');
+
+        langButtons.forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.lang === currentLang);
+        });
+
+        updateDirectionUI();
+        updateHUD();
+      }
+
+      langButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          applyLanguage(btn.dataset.lang);
+          btn.blur();
+        });
+      });
+
+      // =========================================================
+      // 4. PONTEIROS FANTASMAS (MODO COMUNIDADE)
+      // =========================================================
+      function initGhostPointers() {
+        const profiles = [
+          { pos: 0.14, bias: -0.05, jitter: 0.04, react: 0.18, speedMul: 0.96 },
+          { pos: 0.28, bias:  0.06, jitter: 0.07, react: 0.26, speedMul: 1.04 },
+          { pos: 0.42, bias: -0.11, jitter: 0.10, react: 0.34, speedMul: 0.92 },
+          { pos: 0.61, bias:  0.12, jitter: 0.08, react: 0.22, speedMul: 1.02 },
+          { pos: 0.76, bias:  0.00, jitter: 0.05, react: 0.16, speedMul: 0.98 },
+          { pos: 0.20, bias:  0.16, jitter: 0.12, react: 0.40, speedMul: 0.90 },
+          { pos: 0.85, bias: -0.15, jitter: 0.09, react: 0.30, speedMul: 1.06 },
+          { pos: 0.50, bias:  0.03, jitter: 0.06, react: 0.20, speedMul: 1.00 }
+        ];
+
+        state.ghosts = profiles.map((p) => ({
+          pos: p.pos,
+          bias: p.bias,
+          jitter: p.jitter,
+          react: p.react,
+          speedMul: p.speedMul,
+          holding: Math.random() > 0.5,
+          timer: Math.random() * 0.25,
+          targetOffset: (Math.random() * 2 - 1) * p.jitter
+        }));
+      }
+
+      function updateGhostPointers(dt) {
+        for (let i = 0; i < state.ghosts.length; i++) {
+          const g = state.ghosts[i];
+          g.timer -= dt;
+          if (g.timer <= 0) {
+            g.timer = g.react * (0.7 + Math.random() * 0.7);
+            g.targetOffset = (Math.random() * 2 - 1) * g.jitter;
+            const desired = Math.max(0.03, Math.min(0.97, state.krakenPos + g.bias + g.targetOffset));
+            const needRight = g.pos < desired;
+            g.holding = config.direction === 'right' ? needRight : !needRight;
+          }
+
+          const dirSign = g.holding
+            ? (config.direction === 'right' ? 1 : -1)
+            : (config.direction === 'right' ? -1 : 1);
+
+          g.pos += dirSign * config.pointerSpeed * g.speedMul * dt;
+          if (g.pos < 0) g.pos = 0;
+          if (g.pos > 1) g.pos = 1;
+        }
+      }
+
+      function syncTutorialModeUI() {
+        communityNotice.style.display = config.tutorialHighlight ? 'none' : 'block';
+      }
+
+      // =========================================================
+      // 5. GESTÃO DE INPUTS (ESPAÇO, MOUSE, TOQUE)
+      // =========================================================
+      function setHolding(active) {
+        if (state.won) {
+          state.isHolding = false;
+          holdBtn.classList.remove('is-pressed');
+          holdLabel.classList.remove('is-pressed');
+          return;
+        }
+
+        if (active && !state.hasStarted) {
+          state.hasStarted = true;
+        }
+
+        state.isHolding = active;
+        holdBtn.classList.toggle('is-pressed', active);
+        holdLabel.classList.toggle('is-pressed', active);
+      }
+
+      // Teclado (ESPAÇO)
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' || e.key === ' ') {
+          e.preventDefault();
+          if (!state.isHolding) setHolding(true);
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.code === 'Space' || e.key === ' ') {
+          e.preventDefault();
+          setHolding(false);
+        }
+      });
+
+      // Mouse / Toque no mostrador e no botão circular
+      function bindHoldElement(el) {
+        el.addEventListener('pointerdown', (e) => {
+          if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+          e.preventDefault();
+          setHolding(true);
+        });
+      }
+
+      bindHoldElement(gaugeHitArea);
+      bindHoldElement(holdBtn);
+
+      window.addEventListener('pointerup', () => setHolding(false));
+      window.addEventListener('pointercancel', () => setHolding(false));
+      window.addEventListener('blur', () => setHolding(false));
+
+      btnPlayAgain.addEventListener('click', resetGame);
+      btnQuickRestart.addEventListener('click', resetGame);
+
+      chkTutorialHighlight.addEventListener('change', (e) => {
+        config.tutorialHighlight = e.target.checked;
+        syncTutorialModeUI();
+      });
+
+      // =========================================================
+      // 6. DIMENSIONAMENTO RESPONSIVO DO CANVAS
+      // =========================================================
+      function resizeCanvas() {
+        const containerWidth = gaugeHitArea.clientWidth || 330;
+        logicalWidth = Math.min(330, Math.max(240, containerWidth));
+        logicalHeight = Math.round(logicalWidth * 0.64);
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(logicalWidth * dpr);
+        canvas.height = Math.round(logicalHeight * dpr);
+        canvas.style.width = logicalWidth + 'px';
+        canvas.style.height = logicalHeight + 'px';
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      // =========================================================
+      // 7. LÓGICA DO JOGO E ATUALIZAÇÃO DO HUD
+      // =========================================================
+      function getZoneHalfNormalized() {
+        // O semicírculo tem 180 graus -> metade da área em proporção 0..1
+        return (config.zoneDegrees / 2) / 180;
+      }
+
+      function normToRad(norm) {
+        // 0 = Math.PI (esquerda), 1 = Math.PI * 2 (direita)
+        const pad = 0.06;
+        return Math.PI + pad + norm * (Math.PI - pad * 2);
+      }
+
+      function pickNewKrakenTarget() {
+        const halfW = getZoneHalfNormalized();
+        const minPos = Math.max(0.14, halfW + 0.04);
+        const maxPos = Math.min(0.86, 1 - halfW - 0.04);
+
+        let next = minPos + Math.random() * (maxPos - minPos);
+        // Garante um deslocamento perceptível em relação à posição atual
+        if (Math.abs(next - state.krakenPos) < 0.16) {
+          next = state.krakenPos > 0.5 ? minPos + Math.random() * 0.2 : maxPos - Math.random() * 0.2;
+        }
+        state.krakenTarget = Math.max(minPos, Math.min(maxPos, next));
+      }
+
+      function resetGame() {
+        state.pointerPos = config.direction === 'right' ? 0.08 : 0.92;
+        state.krakenPos = 0.54;
+        pickNewKrakenTarget();
+        state.krakenWaitTimer = 0.5;
+        state.progress = 0;
+        state.isHolding = false;
+        state.isInZone = false;
+        state.hasStarted = false;
+        state.won = false;
+        state.elapsedTime = 0;
+        state.timeInZone = 0;
+
+        holdBtn.classList.remove('is-pressed');
+        holdLabel.classList.remove('is-pressed');
+        victoryOverlay.classList.remove('show');
+
+        initGhostPointers();
+        updateHUD();
+      }
+
+      function updateGame(dt) {
+        state.animTime += dt;
+
+        // Ponteiros fantasmas continuam sempre a mover-se no modo comunidade
+        updateGhostPointers(dt);
+
+        if (state.won) return;
+
+        // 1) Movimento do ponteiro (Linear seco)
+        const dirSign = state.isHolding
+          ? (config.direction === 'right' ? 1 : -1)
+          : (config.direction === 'right' ? -1 : 1);
+
+        state.pointerPos += dirSign * config.pointerSpeed * dt;
+        if (state.pointerPos < 0) state.pointerPos = 0;
+        if (state.pointerPos > 1) state.pointerPos = 1;
+
+        // 2) Movimento suave da zona do Kraken
+        if (state.krakenWaitTimer > 0) {
+          state.krakenWaitTimer -= dt;
+        } else {
+          const diff = state.krakenTarget - state.krakenPos;
+          const step = config.krakenSpeed * dt;
+          if (Math.abs(diff) <= step) {
+            state.krakenPos = state.krakenTarget;
+            state.krakenWaitTimer = 0.35 + Math.random() * 0.65;
+            pickNewKrakenTarget();
+          } else {
+            state.krakenPos += Math.sign(diff) * step;
+          }
+        }
+
+        // 3) Verifica se o ponteiro do jogador está dentro da área do Kraken
+        const halfW = getZoneHalfNormalized();
+        state.isInZone = Math.abs(state.pointerPos - state.krakenPos) <= halfW;
+
+        // 4) Atualiza progresso e estatísticas (apenas quando o jogador já começou)
+        if (state.hasStarted) {
+          state.elapsedTime += dt;
+          if (state.isInZone) {
+            state.timeInZone += dt;
+            state.progress = Math.min(100, state.progress + config.barSpeed * dt);
+          } else {
+            state.progress = Math.max(0, state.progress - config.barDecay * dt);
+          }
+
+          if (state.progress >= 100) {
+            state.progress = 100;
+            state.won = true;
+            state.isHolding = false;
+            holdBtn.classList.remove('is-pressed');
+            holdLabel.classList.remove('is-pressed');
+
+            const accuracy = state.elapsedTime > 0
+              ? Math.min(100, Math.round((state.timeInZone / state.elapsedTime) * 100))
+              : 100;
+
+            statTime.textContent = state.elapsedTime.toFixed(1) + 's';
+            statAccuracy.textContent = accuracy + '%';
+            victoryOverlay.classList.add('show');
+          }
+        }
+      }
+
+      function updateHUD() {
+        const pct = Math.round(state.progress);
+        pullBarFill.style.width = pct + '%';
+        pullBarPct.textContent = pct + '%';
+
+        // Barra superior "Ondas" acompanha suavemente o progresso
+        const wavePct = Math.min(100, Math.round(14 + state.progress * 0.86));
+        waveBarFill.style.width = wavePct + '%';
+
+        // Destaques interativos nos 3 ícones do tutorial
+        stepHold.classList.toggle('lit-hold', state.isHolding && !state.won);
+        stepRelease.classList.toggle('lit-release', !state.isHolding && state.hasStarted && !state.won);
+        stepKraken.classList.toggle('lit-kraken', state.isInZone && !state.won);
+
+        // Feedback textual
+        if (state.won) {
+          zoneFeedback.textContent = t('feedbackWon');
+          zoneFeedback.className = 'zone-feedback in-zone';
+        } else if (state.isInZone) {
+          zoneFeedback.textContent = t('feedbackInZone');
+          zoneFeedback.className = 'zone-feedback in-zone';
+        } else if (!state.hasStarted) {
+          zoneFeedback.textContent = t('feedbackIdle');
+          zoneFeedback.className = 'zone-feedback';
+        } else {
+          const needRight = state.pointerPos < state.krakenPos;
+          const shouldHold = config.direction === 'right' ? needRight : !needRight;
+          zoneFeedback.textContent = shouldHold ? t('feedbackHold') : t('feedbackRelease');
+          zoneFeedback.className = 'zone-feedback';
+        }
+      }
+
+      // =========================================================
+      // 8. DESENHO DO MOSTRADOR E SPRITE PIXEL-ART DO KRAKEN
+      // =========================================================
+      const KRAKEN_SPRITE = [
+        '.....KKKKKK.....',
+        '....KPPPPPPK....',
+        '...KPPPLLPPSK...',
+        '...KPPPLLPPSK...',
+        '...KPPWWPWWPK...',
+        '...KPPWBPPWPK...',
+        '...KPPPPPPPPK...',
+        '..KKDDDDDDDDKK..',
+        '..KDDDDDDDDDDK..',
+        '.KPK.KPK.KPK.KPK',
+        '.KPK.KPK.KPK.KPK',
+        'KPK..KPK.KPK..KP',
+        '.....KPK.KPK....'
+      ];
+
+      const KRAKEN_PALETTE = {
+        K: '#26083d',
+        P: '#9b30ff',
+        L: '#d39bff',
+        S: '#7b1fd4',
+        D: '#771ec9',
+        W: '#ffffff',
+        B: '#111111'
+      };
+
+      function drawKrakenSprite(cx, cy, pixelSize, bobOffset) {
+        const rows = KRAKEN_SPRITE.length;
+        const cols = KRAKEN_SPRITE[0].length;
+        const startX = Math.round(cx - (cols * pixelSize) / 2);
+        const startY = Math.round(cy - (rows * pixelSize) / 2 + bobOffset);
+
+        for (let r = 0; r < rows; r++) {
+          const row = KRAKEN_SPRITE[r];
+          for (let c = 0; c < cols; c++) {
+            const ch = row[c];
+            if (ch === '.') continue;
+            ctx.fillStyle = KRAKEN_PALETTE[ch] || '#9b30ff';
+            ctx.fillRect(startX + c * pixelSize, startY + r * pixelSize, pixelSize, pixelSize);
+          }
+        }
+      }
+
+      function drawNeedle(cx, cy, length, angle, style) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+
+        if (style === 'highlight') {
+          ctx.shadowColor = 'rgba(255, 224, 27, 0.9)';
+          ctx.shadowBlur = 10;
+          ctx.fillStyle = '#ffe83b';
+          ctx.strokeStyle = '#1b1006';
+          ctx.lineWidth = 2.4;
+        } else if (style === 'ghost') {
+          ctx.fillStyle = 'rgba(225, 232, 240, 0.72)';
+          ctx.strokeStyle = 'rgba(24, 30, 38, 0.8)';
+          ctx.lineWidth = 1.6;
+        } else {
+          // Modo comunidade (ponteiro do jogador sem destaque artificial)
+          ctx.fillStyle = '#f2f5f8';
+          ctx.strokeStyle = '#171b22';
+          ctx.lineWidth = 2;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(0, -5);
+        ctx.lineTo(length, 0);
+        ctx.lineTo(0, 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function drawGauge() {
+        const w = logicalWidth;
+        const h = logicalHeight;
+        ctx.clearRect(0, 0, w, h);
+
+        const cx = w / 2;
+        const cy = h - 30;
+        const outerR = Math.min(w * 0.42, h - 54);
+        const innerR = outerR - 14;
+
+        // 1) Moldura externa branca/cinza estilo mostrador retro do Habbo
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerR + 8, Math.PI, Math.PI * 2);
+        ctx.lineTo(cx + outerR + 8, cy + 16);
+        ctx.quadraticCurveTo(cx + outerR + 8, cy + 24, cx + outerR - 2, cy + 24);
+        ctx.lineTo(cx - outerR + 2, cy + 24);
+        ctx.quadraticCurveTo(cx - outerR - 8, cy + 24, cx - outerR - 8, cy + 16);
+        ctx.closePath();
+        ctx.fillStyle = '#eaeaea';
+        ctx.fill();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#141414';
+        ctx.stroke();
+
+        // Contorno interior cinzento
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerR + 1, Math.PI, Math.PI * 2);
+        ctx.lineTo(cx + outerR + 1, cy + 12);
+        ctx.lineTo(cx - outerR - 1, cy + 12);
+        ctx.closePath();
+        ctx.fillStyle = '#c2c8ce';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#363b42';
+        ctx.stroke();
+        ctx.restore();
+
+        // 2) Fundo azul oceano do mostrador (com recorte semicircular)
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, innerR + 4, Math.PI, Math.PI * 2);
+        ctx.lineTo(cx + innerR + 4, cy + 6);
+        ctx.lineTo(cx - innerR - 4, cy + 6);
+        ctx.closePath();
+        ctx.clip();
+
+        const oceanGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, innerR + 6);
+        oceanGrad.addColorStop(0, '#59ccff');
+        oceanGrad.addColorStop(0.65, '#1997e6');
+        oceanGrad.addColorStop(1, '#0d6eb3');
+        ctx.fillStyle = oceanGrad;
+        ctx.fillRect(cx - innerR - 6, cy - innerR - 6, (innerR + 6) * 2, innerR + 16);
+
+        // 3) Zona Alvo do Kraken (vermelha fora, totalmente amarela quando a seta está dentro)
+        const halfW = getZoneHalfNormalized();
+        const zoneStartRad = normToRad(Math.max(0, state.krakenPos - halfW));
+        const zoneEndRad = normToRad(Math.min(1, state.krakenPos + halfW));
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, innerR + 4, zoneStartRad, zoneEndRad);
+        ctx.closePath();
+
+        if (state.isInZone) {
+          ctx.fillStyle = '#ffe01b';
+        } else {
+          const zoneGrad = ctx.createRadialGradient(cx, cy, 12, cx, cy, innerR + 4);
+          zoneGrad.addColorStop(0, '#ff7f45');
+          zoneGrad.addColorStop(1, '#e64622');
+          ctx.fillStyle = zoneGrad;
+        }
+        ctx.fill();
+
+        // 4) Marcações (ticks) ao longo do arco
+        const tickCount = 12;
+        for (let i = 0; i <= tickCount; i++) {
+          const a = normToRad(i / tickCount);
+          const isMajor = i % 3 === 0;
+          const r1 = innerR - (isMajor ? 11 : 6);
+          const r2 = innerR + 2;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+          ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
+          ctx.strokeStyle = 'rgba(15, 32, 48, 0.55)';
+          ctx.lineWidth = isMajor ? 2.5 : 1.5;
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Borda preta do semicírculo interno
+        ctx.beginPath();
+        ctx.arc(cx, cy, innerR + 4, Math.PI, Math.PI * 2);
+        ctx.lineTo(cx + innerR + 4, cy + 6);
+        ctx.lineTo(cx - innerR - 4, cy + 6);
+        ctx.closePath();
+        ctx.strokeStyle = '#18242e';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // 5) Sprite Pixel-Art do Kraken na borda da zona alvo
+        const krakenAngle = normToRad(state.krakenPos);
+        const krakenRadius = outerR + 2;
+        const kx = cx + Math.cos(krakenAngle) * krakenRadius;
+        const ky = cy + Math.sin(krakenAngle) * krakenRadius;
+        const bob = Math.sin(state.animTime * 6) * 2.2;
+        const pxSize = logicalWidth < 290 ? 2 : 2.5;
+        drawKrakenSprite(kx, ky - 4, pxSize, bob);
+
+        // 6) Ponteiros fantasmas (apenas quando Modo Tutorial está desmarcado)
+        const needleLen = innerR - 8;
+        if (!config.tutorialHighlight) {
+          for (let i = 0; i < state.ghosts.length; i++) {
+            const ghostAngle = normToRad(state.ghosts[i].pos);
+            drawNeedle(cx, cy, needleLen - 2, ghostAngle, 'ghost');
+          }
+        }
+
+        // 7) Ponteiro do jogador
+        const playerAngle = normToRad(state.pointerPos);
+        drawNeedle(cx, cy, needleLen, playerAngle, config.tutorialHighlight ? 'highlight' : 'normal');
+
+        // 8) Pivô central metálico
+        ctx.beginPath();
+        ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+        ctx.fillStyle = '#d4d8de';
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#7c848f';
+        ctx.fill();
+
+        // 9) Etiqueta "SEU PONTEIRO" (apenas no modo tutorial)
+        if (config.tutorialHighlight) {
+          const tipDist = innerR - 14;
+          const tipX = cx + Math.cos(playerAngle) * tipDist;
+          const tipY = cy + Math.sin(playerAngle) * tipDist;
+
+          const labelText = t('pointerBadge');
+          ctx.font = 'bold 10px Silkscreen, monospace';
+          const textW = ctx.measureText(labelText).width;
+          const boxW = textW + 12;
+          const boxH = 18;
+
+          let bx = tipX - boxW / 2;
+          let by = tipY - 26;
+
+          // Mantém etiqueta dentro dos limites do canvas
+          bx = Math.max(4, Math.min(w - boxW - 4, bx));
+          by = Math.max(4, Math.min(h - boxH - 4, by));
+
+          ctx.fillStyle = '#24170c';
+          ctx.strokeStyle = '#ffd000';
+          ctx.lineWidth = 2;
+          ctx.fillRect(bx, by, boxW, boxH);
+          ctx.strokeRect(bx, by, boxW, boxH);
+
+          ctx.fillStyle = '#ffe852';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(labelText, bx + boxW / 2, by + boxH / 2 + 1);
+        }
+      }
+
+      // =========================================================
+      // 9. LOOP PRINCIPAL
+      // =========================================================
+      function gameLoop(timestamp) {
+        if (!state.lastTimestamp) state.lastTimestamp = timestamp;
+        const dt = Math.min(0.05, (timestamp - state.lastTimestamp) / 1000);
+        state.lastTimestamp = timestamp;
+
+        updateGame(dt);
+        updateHUD();
+        drawGauge();
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      // Inicialização (PT/BR como padrão, respeitando escolha salva se existir)
+      let savedLang = 'pt';
+      try {
+        const stored = localStorage.getItem('kraken_tutorial_lang');
+        if (stored && TRANSLATIONS[stored]) savedLang = stored;
+      } catch (_) {}
+
+      resizeCanvas();
+      syncTutorialModeUI();
+      resetGame();
+      applyLanguage(savedLang);
+      requestAnimationFrame(gameLoop);
+    })();
+  </script>
+</body>
+</html>
