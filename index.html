@@ -1794,8 +1794,13 @@
           ctx.fillStyle = '#ffe83b';
           ctx.strokeStyle = '#1b1006';
           ctx.lineWidth = 2.4;
+        } else if (style === 'ghost') {
+          // Ponteiros fantasmas da comunidade com transparência
+          ctx.fillStyle = 'rgba(232, 238, 244, 0.45)';
+          ctx.strokeStyle = 'rgba(24, 28, 34, 0.5)';
+          ctx.lineWidth = 1.8;
         } else {
-          // No modo comunidade, TODOS os ponteiros (seu + fantasmas) são 100% idênticos
+          // Ponteiro do jogador no modo comunidade
           ctx.fillStyle = '#e8eef4';
           ctx.strokeStyle = '#181c22';
           ctx.lineWidth = 1.8;
@@ -1954,13 +1959,13 @@
         if (config.tutorialHighlight) {
           drawNeedle(cx, cy, needleLen, playerAngle, 'highlight');
         } else {
-          // Mistura o ponteiro do jogador entre os fantasmas com o mesmo tamanho, cor e espessura
+          // Mistura o ponteiro do jogador entre os fantasmas semitransparentes
           for (let i = 0; i < state.ghosts.length; i++) {
             if (i === state.playerDrawIndex) {
               drawNeedle(cx, cy, needleLen, playerAngle, 'community');
             }
             const ghostAngle = normToRad(state.ghosts[i].pos);
-            drawNeedle(cx, cy, needleLen, ghostAngle, 'community');
+            drawNeedle(cx, cy, needleLen, ghostAngle, 'ghost');
           }
           if (state.playerDrawIndex >= state.ghosts.length) {
             drawNeedle(cx, cy, needleLen, playerAngle, 'community');
